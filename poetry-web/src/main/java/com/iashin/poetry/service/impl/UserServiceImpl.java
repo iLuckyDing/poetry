@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iashin.poetry.entity.User;
 import com.iashin.poetry.service.UserService;
 import com.iashin.poetry.mapper.UserMapper;
+import com.iashin.poetry.vo.req.UserVo;
+import com.iashin.poetry.vo.resp.Result;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,6 +17,10 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService{
 
+    @Override
+    public Result register(UserVo user) {
+        return null;
+    }
 }
 
 

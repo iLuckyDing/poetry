@@ -2,6 +2,8 @@ package com.iashin.poetry.service;
 
 import com.iashin.poetry.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.iashin.poetry.vo.req.UserVo;
+import com.iashin.poetry.vo.resp.Result;
 
 /**
 * @author dingzhen
@@ -10,4 +12,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface UserService extends IService<User> {
 
+    /**
+     * 用户注册
+     * @param user 注册信息
+     * @return 返回结果
+     */
+    Result register(UserVo user);
 }
