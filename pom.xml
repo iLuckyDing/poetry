@@ -25,6 +25,7 @@
         <mybatis-plus.version>3.4.3.4</mybatis-plus.version>
         <hutool.version>5.8.22</hutool.version>
         <lombok.version>1.18.30</lombok.version>
+        <junit.version>5.3.2</junit.version>
         <!-- 离线IP地址定位库 -->
         <ip2region.version>2.7.0</ip2region.version>
     </properties>
@@ -71,6 +72,14 @@
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <!-- 离线IP地址定位库 ip2region -->
