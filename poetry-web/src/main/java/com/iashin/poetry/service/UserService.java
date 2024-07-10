@@ -18,4 +18,13 @@ public interface UserService extends IService<User> {
      * @return 返回结果
      */
     Result register(UserVo user);
+
+    /**
+     * 用户登录
+     * @param account 账号
+     * @param password 密码
+     * @param isAdmin 是否是管理员
+     * @return 登录结果
+     */
+    Result login(String account, String password, Boolean isAdmin);
 }

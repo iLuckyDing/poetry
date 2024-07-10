@@ -31,6 +31,10 @@ public class Result<T> implements Serializable {
         return fail(BizCodeEnum.FAIL.getCode(), msg, data);
     }
 
+    public static <T> Result<T> fail(String msg) {
+        return fail(msg, null);
+    }
+
     public static <T> Result<T> fail() {
         return fail(BizCodeEnum.FAIL.getCode(), BizCodeEnum.FAIL.getMsg(), null);
     }

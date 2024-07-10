@@ -14,4 +14,8 @@ public class CommonConstant {
      */
     public static final int ADMIN_USER_ID = 1;
 
+    /**
+     * 密钥
+     */
+    public static final String CRYPOTJS_KEY = "iashin&&*1120";
 }

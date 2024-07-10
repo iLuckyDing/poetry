@@ -21,6 +21,16 @@ public enum BizCodeEnum {
     PARAMETER_ERROR(400, "参数异常！"),
 
     /**
+     * 账号/密码输入错误
+     */
+    ACCOUNT_OR_PASSWD_ERROR(401, "账号/密码输入错误！"),
+
+    /**
+     * 账号被冻结
+     */
+    ACCOUNT_LOCK(402, "账号被冻结！"),
+
+    /**
      * 未登录
      */
     NOT_LOGIN(300, "未登陆，请登陆后再进行操作！"),
