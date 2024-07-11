@@ -15,3 +15,21 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: root
+  servlet:
+    # 文件上传配置
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+# mybatis-plus配置
+mybatis-plus:
+  # 配置mapper.xml文件位置
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    # sql语句日志输出
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      # 逻辑删除
+      logic-delete-value: 1
+      logic-not-delete-value: 0

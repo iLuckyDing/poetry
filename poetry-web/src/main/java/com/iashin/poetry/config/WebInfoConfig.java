@@ -5,7 +5,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * @description: 拦截器配置
+ * 拦截器配置
  * @date: 2024/7/10
  * @project: poetry
  * @email: dingzhen7186@163.com

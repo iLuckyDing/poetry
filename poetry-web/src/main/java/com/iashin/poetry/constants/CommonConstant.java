@@ -16,6 +16,7 @@ public class CommonConstant {
 
     /**
      * 密钥
+     * AES支持三种不同的密钥长度：128位（16字节）、192位（24字节）和256位（32字节）
      */
-    public static final String CRYPOTJS_KEY = "iashin&&*1120";
+    public static final String CRYPOTJS_KEY = "iashin&&*1120520";
 }

@@ -20,7 +20,7 @@ public class Result<T> implements Serializable {
     private static final long serialVersionUID = 406754594494048189L;
 
     private int code;
-    private String message;
+    private String msg;
     private T data;
 
     public static <T> Result<T> fail(int code, String msg, T data) {
@@ -45,6 +45,10 @@ public class Result<T> implements Serializable {
 
     public static <T> Result<T> success(String msg, T data) {
         return success(BizCodeEnum.SUCCESS.getCode(), msg, data);
+    }
+
+    public static <T> Result<T> success(T t) {
+        return success(BizCodeEnum.SUCCESS.getMsg(), t);
     }
 
     public static <T> Result<T> success() {
