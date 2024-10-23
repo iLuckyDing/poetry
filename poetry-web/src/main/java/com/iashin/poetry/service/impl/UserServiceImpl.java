@@ -2,18 +2,22 @@ package com.iashin.poetry.service.impl;
 
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.iashin.poetry.cache.PoetryCache;
 import com.iashin.poetry.constants.CommonConstant;
 import com.iashin.poetry.entity.User;
 import com.iashin.poetry.enums.BizCodeEnum;
+import com.iashin.poetry.enums.PoetryEnum;
 import com.iashin.poetry.service.UserService;
 import com.iashin.poetry.mapper.UserMapper;
 import com.iashin.poetry.vo.req.UserVo;
 import com.iashin.poetry.vo.resp.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 /**
 * @author dingzhen
@@ -21,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 * @createDate 2024-07-10 15:17:02
 */
 @Service
+@Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
 
@@ -47,25 +52,56 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public Result login(String account, String password, Boolean isAdmin) {
         // AES解密前端 password
-        password = new String(SecureUtil
-                .aes(CommonConstant.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8))
-                .decrypt(password));
+        password = SecureUtil.aes(CommonConstant.CRYPOTJS_KEY.getBytes(StandardCharsets.UTF_8))
+                            .decryptStr(password);
+        log.info("AES解密" + account + "password:" + password);
         // 查询用户信息
-        User user = lambdaQuery().and(wrapper -> wrapper
-                    .eq(User::getPhoneNumber, account)
-                    .or()
-                    .eq(User::getUsername, account)
-                    .or()
-                    .eq(User::getEmail, account))
-                .eq(User::getPassword, DigestUtils.md5DigestAsHex(password.getBytes()))
-                .one();
+        User user = lambdaQuery()
+                    .eq(User::getPassword, DigestUtils.md5DigestAsHex(password.getBytes()))
+                    .and(wrapper -> wrapper
+                        .eq(User::getPhoneNumber, account)
+                        .or()
+                        .eq(User::getUsername, account)
+                        .or()
+                        .eq(User::getEmail, account))
+                        .one();
         if (user == null) {
-            return Result.fail("账号/密码输入错误，请重新输入!");
+            return Result.fail(BizCodeEnum.ACCOUNT_OR_PASSWD_ERROR.getMsg());
         }
         if (user.getUserStatus() == 0) {
             return Result.fail(BizCodeEnum.ACCOUNT_LOCK.getMsg());
         }
-        // todo 用户信息加入缓存
+        // 将用户的token加入缓存
+        String userToken = "", adminToken = "";
+        // 管理员处理
+        if (isAdmin != null && isAdmin) {
+            if (user.getUserType() != PoetryEnum.USER_TYPE_ADMIN.getCode() && user.getUserType() != PoetryEnum.USER_TYPE_DEV.getCode()) {
+                return Result.fail("请输入管理员账号！");
+            }
+            // 尝试从缓存中获取token
+            if (PoetryCache.get(CommonConstant.ADMIN_TOKEN + user.getId()) != null) {
+                adminToken = (String) PoetryCache.get(CommonConstant.ADMIN_TOKEN + user.getId());
+            }
+            // 如果缓存中没有token，则生成一个加入缓存
+            if (!StringUtils.hasText(adminToken)) {
+                String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+                adminToken = CommonConstant.ADMIN_ACCESS_TOKEN + uuid;
+                PoetryCache.put(adminToken, user, CommonConstant.TOKEN_EXPIRE);
+                PoetryCache.put(CommonConstant.ADMIN_TOKEN + user.getId(), adminToken, CommonConstant.TOKEN_EXPIRE);
+            }
+        } else {
+            // 用户处理
+            if (PoetryCache.get(CommonConstant.USER_TOKEN + user.getId()) != null) {
+                userToken = (String) PoetryCache.get(CommonConstant.USER_TOKEN + user.getId());
+            }
+            // 如果缓存中没有token，则生成一个加入缓存
+            if (!StringUtils.hasText(userToken)) {
+                String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+                userToken = CommonConstant.USER_ACCESS_TOKEN + uuid;
+                PoetryCache.put(userToken, user, CommonConstant.TOKEN_EXPIRE);
+                PoetryCache.put(CommonConstant.USER_TOKEN + user.getId(), userToken, CommonConstant.TOKEN_EXPIRE);
+            }
+        }
         return Result.success();
     }
 

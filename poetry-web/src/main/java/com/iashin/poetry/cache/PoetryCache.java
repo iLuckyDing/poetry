@@ -12,7 +12,7 @@ import java.util.concurrent.*;
  * @projectName: poetry
  * @description: 服务缓存
  * @date: 2024/7/15 22:07
- * @author: 71863
+ * @author: dingzhen
  */
 @Component
 @Slf4j
@@ -21,12 +21,12 @@ public class PoetryCache {
     /**
      * 缓存map
      */
-    private static final Map<String, Entity> map = new ConcurrentHashMap<>();
+    private static final Map<String, Entity> MAP = new ConcurrentHashMap<>();
 
     /**
      * 定时器线程池，用于清除过期缓存
      */
-    private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(8);
+    private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(8);
 
     /**
      * 缓存实体
@@ -40,7 +40,7 @@ public class PoetryCache {
         /**
          * 定时器future
          */
-        private final Future future;
+        private final ScheduledFuture<?> future;
     }
 
     /**
@@ -56,27 +56,27 @@ public class PoetryCache {
      * 添加缓存
      * @param key 键
      * @param data 值
-     * @param expire 过期时间
+     * @param expire 过期时间,单位秒
      */
     public static void put(String key, Object data, long expire) {
-        //清除原键值对
-        Entity entity = map.get(key);
+        // 清除原键值对
+        Entity entity = MAP.get(key);
         if (entity != null) {
-            Future oldFuture = entity.getFuture();
-            if (oldFuture != null) {
-                oldFuture.cancel(true);
+            ScheduledFuture<?> future = entity.getFuture();
+            if (future != null) {
+                future.cancel(true);
             }
         }
 
-        //设置过期时间
+        // 设置过期时间
         if (expire > 0) {
-            Future future = executor.schedule(() -> {
-                map.remove(key);
+            ScheduledFuture<?> schedule = EXECUTOR.schedule(() -> {
+                MAP.remove(key);
             }, expire, TimeUnit.SECONDS);
-            map.put(key, new Entity(data, future));
+            MAP.put(key, new Entity(data, schedule));
         } else {
             //不设置过期时间
-            map.put(key, new Entity(data, null));
+            MAP.put(key, new Entity(data, null));
         }
     }
 
@@ -86,7 +86,7 @@ public class PoetryCache {
      * @return 缓存数据
      */
     public static Object get(String key) {
-        Entity entity = map.get(key);
+        Entity entity = MAP.get(key);
         return entity == null ? null : entity.getValue();
     }
 
@@ -94,8 +94,8 @@ public class PoetryCache {
      * 读取所有缓存
      * @return 缓存数据集合
      */
-    public static Collection values() {
-        return map.values();
+    public static Collection<?> values() {
+        return MAP.values();
     }
 
     /**
@@ -105,12 +105,12 @@ public class PoetryCache {
      */
     public static Object remove(String key) {
         //清除原缓存数据
-        Entity entity = map.remove(key);
+        Entity entity = MAP.remove(key);
         if (entity == null) {
             return null;
         }
         //清除原键值对定时器
-        Future future = entity.getFuture();
+        ScheduledFuture<?> future = entity.getFuture();
         if (future != null) {
             future.cancel(true);
         }
@@ -119,10 +119,10 @@ public class PoetryCache {
 
     /**
      * 查询当前缓存的数量
-     * @return
+     * @return 缓存数量
      */
     public static int size() {
-        return map.size();
+        return MAP.size();
     }
 
 }
