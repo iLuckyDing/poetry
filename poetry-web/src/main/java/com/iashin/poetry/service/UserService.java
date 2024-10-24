@@ -27,4 +27,12 @@ public interface UserService extends IService<User> {
      * @return 登录结果
      */
     Result login(String account, String password, Boolean isAdmin);
+
+    /**
+     * 忘记密码/获取验证码
+     * @param place 邮箱/手机号
+     * @param flag 1:手机号 2:邮箱
+     * @return 获取验证码结果
+     */
+    Result getCodeForForgetPassword(String place, Integer flag);
 }

@@ -18,6 +18,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -122,6 +123,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             userVo.setAccessToken(userToken);
         }
         return Result.success();
+    }
+
+    @Override
+    public Result getCodeForForgetPassword(String place, Integer flag) {
+        int i = new Random().nextInt(900000) + 100000;
+        if (flag == 1) {
+            log.info(place + " 手机验证码为：{}", i);
+        } else {
+            log.info(place + " 邮箱验证码为：{}", i);
+            // todo 发邮件逻辑
+
+        }
+        return null;
     }
 
     /**

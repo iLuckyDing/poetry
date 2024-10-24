@@ -51,4 +51,24 @@ public class CommonConstant {
      * 忘记密码时获取验证码用于找回密码
      */
     public static final String FORGET_PASSWORD = "forget_password_";
+
+    /**
+     * 评论和IM邮件
+     */
+    public static final String COMMENT_IM_MAIL = "comment_im_mail_";
+
+    /**
+     * 验证码邮件
+     */
+    public static final String CODE_MAIL = "code_mail_";
+
+    /**
+     * 评论和IM邮件发送次数
+     */
+    public static final int COMMENT_IM_MAIL_COUNT = 1;
+
+    /**
+     * 验证码邮件发送次数
+     */
+    public static final int CODE_MAIL_COUNT = 3;
 }

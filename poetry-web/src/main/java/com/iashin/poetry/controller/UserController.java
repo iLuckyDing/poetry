@@ -60,4 +60,15 @@ public class UserController {
         }
     }
 
+    /**
+     * 忘记密码 获取验证码
+     * <p>
+     * 1 手机号
+     * 2 邮箱
+     */
+    @GetMapping("/getCodeForForgetPassword")
+    public Result getCodeForForgetPassword(@RequestParam("place") String place, @RequestParam("flag") Integer flag) {
+        return userService.getCodeForForgetPassword(place, flag);
+    }
+
 }
