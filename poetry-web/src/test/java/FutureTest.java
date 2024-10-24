@@ -1,17 +1,9 @@
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.iashin.poetry.constants.CommonConstant;
-import lombok.Getter;
-import lombok.ToString;
 import org.junit.jupiter.api.Test;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -57,9 +49,9 @@ public class FutureTest {
     @Test
     public void testAES() {
         String s = "123";
-        String encryption = SecureUtil.aes(CommonConstant.CRYPOTJS_KEY.getBytes()).encryptHex(s);
+        String encryption = SecureUtil.aes(CommonConstant.CRYPTOJS_KEY.getBytes()).encryptHex(s);
         System.out.println(StrUtil.toString(encryption));
-        String decryptStr = SecureUtil.aes(CommonConstant.CRYPOTJS_KEY.getBytes()).decryptStr(encryption);
+        String decryptStr = SecureUtil.aes(CommonConstant.CRYPTOJS_KEY.getBytes()).decryptStr(encryption);
         System.out.println(decryptStr);
     }
 }

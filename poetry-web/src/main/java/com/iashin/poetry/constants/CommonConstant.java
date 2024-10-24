@@ -15,10 +15,10 @@ public class CommonConstant {
     public static final int ADMIN_USER_ID = 1;
 
     /**
-     * 密钥
+     * AES密钥
      * AES支持三种不同的密钥长度：128位（16字节）、192位（24字节）和256位（32字节）
      */
-    public static final String CRYPOTJS_KEY = "iashin&&*1120520";
+    public static final String CRYPTOJS_KEY = "iashin&&*1120520";
 
     public static final String TOKEN_HEADER = "Authorization";
 
@@ -43,7 +43,12 @@ public class CommonConstant {
     public static final String ADMIN_ACCESS_TOKEN = "admin_access_token_";
 
     /**
-     * Token过期时间：10天
+     * Token过期时间：1天
      */
-    public static final long TOKEN_EXPIRE = 864000;
+    public static final long TOKEN_EXPIRE = 86400;
+
+    /**
+     * 忘记密码时获取验证码用于找回密码
+     */
+    public static final String FORGET_PASSWORD = "forget_password_";
 }
