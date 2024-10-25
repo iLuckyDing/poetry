@@ -10,6 +10,7 @@ import com.iashin.poetry.enums.BizCodeEnum;
 import com.iashin.poetry.enums.PoetryEnum;
 import com.iashin.poetry.service.UserService;
 import com.iashin.poetry.mapper.UserMapper;
+import com.iashin.poetry.util.PoetryUtil;
 import com.iashin.poetry.util.mail.MailUtil;
 import com.iashin.poetry.vo.req.UserVo;
 import com.iashin.poetry.vo.resp.Result;
@@ -70,6 +71,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         BeanUtils.copyProperties(one, userVO);
         userVO.setPassword(null);
         userVO.setAccessToken(userToken);
+
         return Result.success(userVO);
     }
 
@@ -78,6 +80,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // AES解密前端 password
         password = SecureUtil.aes(CommonConstant.CRYPTOJS_KEY.getBytes(StandardCharsets.UTF_8))
                             .decryptStr(password);
+        log.info("password：" + password);
         // 查询用户信息
         User user = lambdaQuery()
                     .eq(User::getPassword, DigestUtils.md5DigestAsHex(password.getBytes()))
@@ -140,6 +143,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public Result getCodeForForgetPassword(String place, Integer flag) {
+        // 生成6位数验证码
         int i = new Random().nextInt(900000) + 100000;
         if (flag == 1) {
             log.info(place + " 手机验证码为：{}", i);
@@ -170,6 +174,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return Result.success();
     }
 
+    @Override
+    public Result exit() {
+        String token = PoetryUtil.getToken();
+        Integer userId = PoetryUtil.getUserId();
+        if (token == null || userId == null) {
+            return Result.fail(BizCodeEnum.NOT_LOGIN.getCode(), BizCodeEnum.NOT_LOGIN.getMsg());
+        }
+        if (token.contains(CommonConstant.USER_ACCESS_TOKEN)) {
+            PoetryCache.remove(CommonConstant.USER_TOKEN + userId);
+        } else if (token.contains(CommonConstant.ADMIN_ACCESS_TOKEN)) {
+            PoetryCache.remove(CommonConstant.ADMIN_TOKEN + userId);
+        }
+        PoetryCache.remove(token);
+        return Result.success();
+    }
+
     /**
      * 校验用户信息
      * @param user 用户信息
@@ -190,8 +210,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return Result.fail("手机号与邮箱只能选择其中一个！");
         }
         if (StringUtils.hasText(user.getPhoneNumber())) {
-            // todo 手机号校验，验证码校验
+            // todo 手机验证码校验
         } else if (StringUtils.hasText(user.getEmail())) {
+            // 邮箱验证码校验
             Integer codeCache = (Integer) PoetryCache.get(CommonConstant.FORGET_PASSWORD + user.getEmail() + "_2");
             if (codeCache == null || codeCache != Integer.parseInt(user.getCode())) {
                 return Result.fail("验证码错误！");

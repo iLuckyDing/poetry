@@ -78,7 +78,10 @@ public class PoetryUtil {
         return (User) PoetryCache.get(CommonConstant.ADMIN);
     }
 
-
+    public static Integer getUserId() {
+        User user = (User) PoetryCache.get(PoetryUtil.getToken());
+        return user == null ? null : user.getId();
+    }
 
     /**
      * 解析ip地址

@@ -72,4 +72,12 @@ public class UserController {
         return userService.getCodeForForgetPassword(place, flag);
     }
 
+    /**
+     * 退出登陆
+     */
+    @GetMapping("/logout")
+    public Result exit() {
+        return userService.exit();
+    }
+
 }

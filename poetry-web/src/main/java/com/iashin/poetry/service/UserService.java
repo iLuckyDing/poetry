@@ -29,6 +29,12 @@ public interface UserService extends IService<User> {
     Result login(String account, String password, Boolean isAdmin);
 
     /**
+     * 退出登陆
+     * @return result
+     */
+    Result exit();
+
+    /**
      * 忘记密码/获取验证码
      * @param place 邮箱/手机号
      * @param flag 1:手机号 2:邮箱
