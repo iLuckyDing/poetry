@@ -42,6 +42,8 @@ public class CommonConstant {
      */
     public static final String ADMIN_ACCESS_TOKEN = "admin_access_token_";
 
+    public static final String ADMIN = "admin";
+
     /**
      * Token过期时间：1天
      */
@@ -63,12 +65,22 @@ public class CommonConstant {
     public static final String CODE_MAIL = "code_mail_";
 
     /**
+     * 验证码过期时间：1天
+     */
+    public static final long CODE_EXPIRE = 86400;
+
+    /**
      * 评论和IM邮件发送次数
      */
     public static final int COMMENT_IM_MAIL_COUNT = 1;
 
     /**
-     * 验证码邮件发送次数
+     * 验证码邮件发送最大次数
      */
     public static final int CODE_MAIL_COUNT = 3;
+
+    /**
+     * 网站信息
+     */
+    public static final String WEB_INFO = "web_info";
 }

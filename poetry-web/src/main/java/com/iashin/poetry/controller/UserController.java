@@ -68,6 +68,7 @@ public class UserController {
      */
     @GetMapping("/getCodeForForgetPassword")
     public Result getCodeForForgetPassword(@RequestParam("place") String place, @RequestParam("flag") Integer flag) {
+        log.info("email:{}, flag:{}", place, flag);
         return userService.getCodeForForgetPassword(place, flag);
     }
 

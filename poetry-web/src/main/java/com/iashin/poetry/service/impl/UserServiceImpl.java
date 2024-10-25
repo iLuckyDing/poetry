@@ -5,21 +5,28 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.iashin.poetry.cache.PoetryCache;
 import com.iashin.poetry.constants.CommonConstant;
 import com.iashin.poetry.entity.User;
+import com.iashin.poetry.entity.WebInfo;
 import com.iashin.poetry.enums.BizCodeEnum;
 import com.iashin.poetry.enums.PoetryEnum;
 import com.iashin.poetry.service.UserService;
 import com.iashin.poetry.mapper.UserMapper;
+import com.iashin.poetry.util.mail.MailUtil;
 import com.iashin.poetry.vo.req.UserVo;
 import com.iashin.poetry.vo.resp.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
 * @author dingzhen
@@ -30,6 +37,12 @@ import java.util.UUID;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
+
+    @Resource
+    private MailUtil mailUtil;
+
+    @Value("${user.code.format}")
+    private String codeFormat;
 
     @Override
     public Result<UserVo> register(UserVo user) {
@@ -132,10 +145,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             log.info(place + " 手机验证码为：{}", i);
         } else {
             log.info(place + " 邮箱验证码为：{}", i);
-            // todo 发邮件逻辑
-
+            // 收件人邮箱
+            List<String> mailList = new ArrayList<>();
+            mailList.add(place);
+            String content = generateMailContent(i);
+            WebInfo webInfo = (WebInfo) PoetryCache.get(CommonConstant.WEB_INFO);
+            AtomicInteger count = (AtomicInteger) PoetryCache.get(CommonConstant.CODE_MAIL + mailList.get(0));
+            if (count == null || count.get() < CommonConstant.CODE_MAIL_COUNT) {
+                // 发送验证码邮件
+                mailUtil.sendMailMessage(mailList, "您有一封来自" +  (webInfo == null ? "Poetize" : webInfo.getWebName()) + "的回执！", content);
+                // 如果是第一次发送验证码, 记录缓存并更新验证码发送次数为1
+                if (count == null) {
+                   PoetryCache.put(CommonConstant.CODE_MAIL + mailList.get(0), new AtomicInteger(1), CommonConstant.CODE_EXPIRE);
+                } else {
+                    // 如果发送过验证码，更新该邮件发送验证码次数
+                    count.incrementAndGet();
+                }
+            } else {
+                return Result.fail("验证码发送过于频繁，请稍后再试！");
+            }
         }
-        return null;
+        // 把验证码加入缓存中
+        PoetryCache.put(CommonConstant.FORGET_PASSWORD + place + "_" + flag, i, CommonConstant.CODE_EXPIRE);
+        return Result.success();
     }
 
     /**
@@ -189,6 +221,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         return Result.success();
     }
+
+    /**
+     * 生成验证码邮件内容
+     * @param code 验证码
+     * @return 邮件内容
+     */
+    private String generateMailContent(int code) {
+        WebInfo webInfo = (WebInfo) PoetryCache.get(CommonConstant.WEB_INFO);
+        String webName = (webInfo == null ? "POETRY" : webInfo.getWebName());
+        return String.format(mailUtil.getMailText(),
+                webName,
+                String.format(MailUtil.IM_MAIL, /*PoetryUtil.getAdminUser().getUsername()*/"admin"),
+                /*PoetryUtil.getAdminUser().getUsername()*/"admin",
+                String.format(codeFormat, code),
+                "",
+                webName);
+    }
+
 }
 
 

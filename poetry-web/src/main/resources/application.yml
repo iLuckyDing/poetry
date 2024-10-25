@@ -51,3 +51,10 @@ mybatis-plus:
       # 逻辑删除
       logic-delete-value: 1
       logic-not-delete-value: 0
+
+user:
+  code:
+    format: "【poetry.cn】%s为本次验证的验证码，请在5分钟内完成验证。为保证账号安全，请勿泄漏此验证码。"
+  subscribe:
+    format: "【poetry.cn】您订阅的专栏【%s】新增一篇文章：%s。"
+

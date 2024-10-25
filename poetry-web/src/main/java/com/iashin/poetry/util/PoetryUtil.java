@@ -1,10 +1,13 @@
 package com.iashin.poetry.util;
 
+import com.iashin.poetry.cache.PoetryCache;
 import com.iashin.poetry.constants.CommonConstant;
 import com.iashin.poetry.entity.User;
+import com.iashin.poetry.exception.PoetryRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.lionsoul.ip2region.xdb.Searcher;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -43,16 +46,19 @@ public class PoetryUtil {
         }
     }
 
+    /**
+     * 获取当前的Http请求对象
+     * @return HttpServletRequest对象
+     */
     public static HttpServletRequest getRequest() {
         return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
     }
 
     public static void checkEmail() {
-        /*
         User user = (User) PoetryCache.get(PoetryUtil.getToken());
         if (!StringUtils.hasText(user.getEmail())) {
             throw new PoetryRuntimeException("请先绑定邮箱！");
-        }*/
+        }
     }
 
     public static String getToken() {
@@ -65,9 +71,14 @@ public class PoetryUtil {
      * @return user
      */
     public static User getCurrentUser() {
-        // todo 缓存获取当前用户
-        return null;
+        return (User) PoetryCache.get(PoetryUtil.getToken());
     }
+
+    public static User getAdminUser() {
+        return (User) PoetryCache.get(CommonConstant.ADMIN);
+    }
+
+
 
     /**
      * 解析ip地址
