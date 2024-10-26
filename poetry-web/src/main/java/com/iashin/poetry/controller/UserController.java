@@ -1,7 +1,10 @@
 package com.iashin.poetry.controller;
 
 import com.alibaba.fastjson2.JSON;
+import com.iashin.poetry.cache.PoetryCache;
+import com.iashin.poetry.constants.CommonConstant;
 import com.iashin.poetry.service.UserService;
+import com.iashin.poetry.util.PoetryUtil;
 import com.iashin.poetry.vo.req.UserVo;
 import com.iashin.poetry.vo.resp.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -78,6 +81,15 @@ public class UserController {
     @GetMapping("/logout")
     public Result exit() {
         return userService.exit();
+    }
+
+    /**
+     * 更新用户信息
+     */
+    @PostMapping("/updateUserInfo")
+    public Result<UserVo> updateUserInfo(@RequestBody UserVo user) {
+//        PoetryCache.remove(CommonConstant.USER_CACHE + PoetryUtil.getUserId().toString());
+        return userService.updateUserInfo(user);
     }
 
 }

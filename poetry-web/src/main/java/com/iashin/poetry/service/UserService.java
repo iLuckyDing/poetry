@@ -41,4 +41,11 @@ public interface UserService extends IService<User> {
      * @return 获取验证码结果
      */
     Result getCodeForForgetPassword(String place, Integer flag);
+
+    /**
+     * 更新用户信息
+     * @param user 用户要更新的数据
+     * @return 更新结果
+     */
+    Result<UserVo> updateUserInfo(UserVo user);
 }

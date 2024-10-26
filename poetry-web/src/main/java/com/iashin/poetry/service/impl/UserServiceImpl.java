@@ -138,9 +138,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         } else  {
             userVo.setAccessToken(userToken);
         }
-        return Result.success();
+        return Result.success(userVo);
     }
 
+    /**
+     * 获取验证码 最多发送3次
+     * @param place 邮箱/手机号 发送方式
+     * @param flag 1:手机号 2:邮箱
+     * @return 是否发送成功
+     */
     @Override
     public Result getCodeForForgetPassword(String place, Integer flag) {
         // 生成6位数验证码
@@ -157,7 +163,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             AtomicInteger count = (AtomicInteger) PoetryCache.get(CommonConstant.CODE_MAIL + mailList.get(0));
             if (count == null || count.get() < CommonConstant.CODE_MAIL_COUNT) {
                 // 发送验证码邮件
-                mailUtil.sendMailMessage(mailList, "您有一封来自" +  (webInfo == null ? "Poetize" : webInfo.getWebName()) + "的回执！", content);
+                mailUtil.sendMailMessage(mailList, "您有一封来自" +  (webInfo == null ? "POETRY" : webInfo.getWebName()) + "的回执！", content);
                 // 如果是第一次发送验证码, 记录缓存并更新验证码发送次数为1
                 if (count == null) {
                    PoetryCache.put(CommonConstant.CODE_MAIL + mailList.get(0), new AtomicInteger(1), CommonConstant.CODE_EXPIRE);
@@ -188,6 +194,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         PoetryCache.remove(token);
         return Result.success();
+    }
+
+    @Override
+    public Result<UserVo> updateUserInfo(UserVo user) {
+        // 昵称校验
+        if (StringUtils.hasText(user.getUsername())) {
+            String regex = "\\d{11}";
+            if (user.getUsername().matches(regex)) {
+                return Result.fail("用户名不能为11位数字！");
+            }
+
+            if (user.getUsername().contains("@")) {
+                return Result.fail("用户名不能包含@！");
+            }
+
+            Integer count = lambdaQuery().eq(User::getUsername, user.getUsername()).ne(User::getId, PoetryUtil.getUserId()).count();
+            if (count != 0) {
+                return Result.fail("用户名重复！");
+            }
+        }
+        // 更新用户信息
+        User u = new User();
+        u.setId(PoetryUtil.getUserId());
+        u.setUsername(user.getUsername());
+        u.setAvatar(user.getAvatar());
+        u.setGender(user.getGender());
+        u.setIntroduction(user.getIntroduction());
+        updateById(u);
+        User one = lambdaQuery().eq(User::getId, u.getId()).one();
+        // 用户信息加入缓存
+        PoetryCache.put(CommonConstant.USER_TOKEN + one.getId(), PoetryUtil.getToken(), CommonConstant.TOKEN_EXPIRE);
+        PoetryCache.put(PoetryUtil.getToken(), one, CommonConstant.TOKEN_EXPIRE);
+
+        UserVo userVO = new UserVo();
+        BeanUtils.copyProperties(one, userVO);
+        userVO.setPassword(null);
+        userVO.setAccessToken(PoetryUtil.getToken());
+        return Result.success(userVO);
     }
 
     /**

@@ -28,6 +28,11 @@ public class CommonConstant {
     public static final String USER_TOKEN = "user_token_";
 
     /**
+     * 根据用户ID获取用户信息
+     */
+    public static final String USER_CACHE = "user_";
+
+    /**
      * 管理员信息Token
      */
     public static final String ADMIN_TOKEN = "admin_token_";
